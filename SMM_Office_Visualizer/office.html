@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMM Office — Simon Money Maker</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --good:           #0ca30c;
+    --warning:        #fab219;
+    --critical:       #d03b3b;
+    --dept-research:  #2a78d6;
+    --dept-strategy:  #eb6834;
+    --dept-design:    #1baf7a;
+    --dept-webdev:    #eda100;
+    --dept-marketing: #e87ba4;
+    --meter-track:    #e1e0d9;
+    --meter-fill:     #2a78d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --good:           #0ca30c;
+      --warning:        #fab219;
+      --critical:       #e66767;
+      --dept-research:  #3987e5;
+      --dept-strategy:  #d95926;
+      --dept-design:    #199e70;
+      --dept-webdev:    #c98500;
+      --dept-marketing: #d55181;
+      --meter-track:    #383835;
+      --meter-fill:     #3987e5;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --good:           #0ca30c;
+    --warning:        #fab219;
+    --critical:       #e66767;
+    --dept-research:  #3987e5;
+    --dept-strategy:  #d95926;
+    --dept-design:    #199e70;
+    --dept-webdev:    #c98500;
+    --dept-marketing: #d55181;
+    --meter-track:    #383835;
+    --meter-fill:     #3987e5;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body { padding: 24px; max-width: 1180px; margin: 0 auto; }
+
+  header.top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  header.top h1 { font-size: 22px; margin: 0 0 4px; }
+  header.top .sub { color: var(--text-secondary); font-size: 14px; max-width: 62ch; }
+  header.top .meta { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+
+  button#theme-toggle {
+    background: var(--surface-1); color: var(--text-secondary);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer;
+  }
+  button#theme-toggle:hover { color: var(--text-primary); }
+
+  section { margin-bottom: 32px; }
+  section > h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-muted); font-weight: 600; margin: 0 0 12px;
+  }
+
+  /* Minion Supervision Hub */
+  .hub-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .dept-card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; position: relative; overflow: hidden;
+  }
+  .dept-card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--accent);
+  }
+  .dept-card[data-dept="research"]   { --accent: var(--dept-research); }
+  .dept-card[data-dept="strategy"]   { --accent: var(--dept-strategy); }
+  .dept-card[data-dept="design"]     { --accent: var(--dept-design); }
+  .dept-card[data-dept="webdev"]     { --accent: var(--dept-webdev); }
+  .dept-card[data-dept="marketing"]  { --accent: var(--dept-marketing); }
+
+  .dept-card .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .dept-card .agent { color: var(--text-muted); font-size: 11px; font-family: ui-monospace, monospace; margin-bottom: 10px; }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-secondary); font-weight: 500;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .status-dot.idle { background: var(--text-muted); }
+  .status-dot.active { background: var(--good); }
+  .status-dot.blocked { background: var(--warning); }
+
+  /* Live Agent Status table */
+  table.agent-table {
+    width: 100%; border-collapse: collapse; background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    font-size: 13px;
+  }
+  table.agent-table th, table.agent-table td {
+    text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--gridline);
+    vertical-align: top;
+  }
+  table.agent-table th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-muted); font-weight: 600; background: transparent;
+  }
+  table.agent-table tr:last-child td { border-bottom: none; }
+  table.agent-table td.dept-cell { font-weight: 600; white-space: nowrap; }
+  table.agent-table td.completed { color: var(--text-secondary); }
+
+  /* Chairman's Dashboard */
+  .chairman-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  @media (max-width: 720px) { .chairman-grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .panel h3 {
+    margin: 0 0 10px; font-size: 13px; display: flex; align-items: center; gap: 8px;
+  }
+  .panel.help-panel { border-color: rgba(208,59,59,0.35); }
+  .panel.help-panel h3 { color: var(--critical); }
+  ul.todo-list { list-style: none; margin: 0; padding: 0; }
+  ul.todo-list li {
+    display: flex; align-items: flex-start; gap: 8px; font-size: 13px;
+    padding: 6px 0; border-bottom: 1px solid var(--gridline); color: var(--text-secondary);
+  }
+  ul.todo-list li:last-child { border-bottom: none; }
+  ul.todo-list li input { margin-top: 3px; }
+  .empty-state {
+    font-size: 13px; color: var(--text-muted); font-style: italic; padding: 4px 0;
+  }
+  .empty-state.ok::before { content: "✓ "; color: var(--good); font-style: normal; }
+
+  /* Time Ruler */
+  .ruler-panel {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .ruler-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .ruler-row .label { font-size: 13px; color: var(--text-secondary); }
+  .ruler-row .value { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+  .meter-track {
+    width: 100%; height: 8px; border-radius: 4px; background: var(--meter-track);
+    overflow: hidden; margin-bottom: 10px;
+  }
+  .meter-fill { height: 100%; background: var(--meter-fill); border-radius: 4px; }
+  .ruler-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .ruler-note code {
+    background: var(--page); border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 5px; font-size: 11px;
+  }
+
+  footer.foot {
+    font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--gridline);
+    padding-top: 14px; line-height: 1.6;
+  }
+  footer.foot code {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 5px; font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>SMM Office — Simon Money Maker</h1>
+    <div class="sub">Internal holding-company dashboard. This is the real org chart, not decoration — department status here should always match <code>.claude/agents/</code> and <code>CLAUDE.md</code>.</div>
+    <div class="meta">Last hand-updated: 2026-08-01 · Foundation build session</div>
+  </div>
+  <button id="theme-toggle" type="button">Toggle theme</button>
+</header>
+
+<section>
+  <h2>Minion Supervision Hub</h2>
+  <div class="hub-grid">
+    <div class="dept-card" data-dept="research">
+      <div class="name">Research</div>
+      <div class="agent">researcher</div>
+      <span class="status-pill"><span class="status-dot idle"></span>Idle — queued for Phase 2</span>
+    </div>
+    <div class="dept-card" data-dept="strategy">
+      <div class="name">Strategy</div>
+      <div class="agent">strategist</div>
+      <span class="status-pill"><span class="status-dot idle"></span>Idle — queued for Phase 3</span>
+    </div>
+    <div class="dept-card" data-dept="design">
+      <div class="name">Product Design</div>
+      <div class="agent">product-designer</div>
+      <span class="status-pill"><span class="status-dot idle"></span>Idle — queued for Phase 4</span>
+    </div>
+    <div class="dept-card" data-dept="webdev">
+      <div class="name">Web Development</div>
+      <div class="agent">web-developer</div>
+      <span class="status-pill"><span class="status-dot active"></span>Active — built this dashboard</span>
+    </div>
+    <div class="dept-card" data-dept="marketing">
+      <div class="name">Marketing</div>
+      <div class="agent">marketer</div>
+      <span class="status-pill"><span class="status-dot idle"></span>Idle — queued for Phase 5</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Live Agent Status</h2>
+  <table class="agent-table">
+    <thead>
+      <tr><th>Department</th><th>Current Task</th><th>Status</th><th>Last Completed</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="dept-cell">Research</td>
+        <td>—</td>
+        <td><span class="status-pill"><span class="status-dot idle"></span>Idle</span></td>
+        <td class="completed">Not yet dispatched</td>
+      </tr>
+      <tr>
+        <td class="dept-cell">Strategy</td>
+        <td>—</td>
+        <td><span class="status-pill"><span class="status-dot idle"></span>Idle</span></td>
+        <td class="completed">Not yet dispatched</td>
+      </tr>
+      <tr>
+        <td class="dept-cell">Product Design</td>
+        <td>—</td>
+        <td><span class="status-pill"><span class="status-dot idle"></span>Idle</span></td>
+        <td class="completed">Not yet dispatched</td>
+      </tr>
+      <tr>
+        <td class="dept-cell">Web Development</td>
+        <td>Foundation build: this dashboard, CLAUDE.md, MASTERPROMPT.md, folder scaffold</td>
+        <td><span class="status-pill"><span class="status-dot active"></span>Deployed</span></td>
+        <td class="completed">Cloned repo · wrote 5 department agent definitions · built office.html</td>
+      </tr>
+      <tr>
+        <td class="dept-cell">Marketing</td>
+        <td>—</td>
+        <td><span class="status-pill"><span class="status-dot idle"></span>Idle</span></td>
+        <td class="completed">Not yet dispatched</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Chairman's Dashboard</h2>
+  <div class="chairman-grid">
+    <div class="panel">
+      <h3>TODO for the Chairman</h3>
+      <div class="empty-state ok">Nothing blocking right now. First real approvals (domains, payment processor, account signups) will land here once Phase 2/3 name actual ventures.</div>
+    </div>
+    <div class="panel help-panel">
+      <h3>⚠ Help Needed</h3>
+      <div class="empty-state ok">No blockers. This panel turns red with a specific ask the moment any department hits something only the Chairman can resolve.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Time Ruler / Token Monitor</h2>
+  <div class="ruler-panel">
+    <div class="ruler-row">
+      <span class="label">This session's context usage (approximate)</span>
+      <span class="value">Foundation build in progress</span>
+    </div>
+    <div class="meter-track"><div class="meter-fill" style="width: 45%"></div></div>
+    <div class="ruler-note">
+      Recommended next stopping point: <strong>after this foundation build commits &amp; pushes cleanly.</strong>
+      This gauge is hand-set, not live — a static file can't read real token counts. The actual scheduling
+      mechanism lives in chat: <code>/schedule</code> (cron-backed) puts department work on its own timer,
+      independent of whatever else the Chairman is doing with his subscription; <code>/loop</code> paces a
+      single work stretch. See <code>CLAUDE.md → The Time Ruler</code> for the full mapping.
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  Departments here map 1:1 to real Claude Code sub-agents in <code>.claude/agents/</code>. Full charter, roles,
+  and the running progress log live in <code>CLAUDE.md</code>. Forward execution plan: <code>MASTERPROMPT.md</code>.
+  This file is hand-updated after any material change in department status — see the note in CLAUDE.md's
+  "Office Visualizer" section.
+</footer>
+
+<script>
+  var toggle = document.getElementById('theme-toggle');
+  var root = document.documentElement;
+  toggle.addEventListener('click', function () {
+    var current = root.getAttribute('data-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next;
+    if (!current) next = prefersDark ? 'light' : 'dark';
+    else next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+  });
+</script>
+
+</body>
+</html>
