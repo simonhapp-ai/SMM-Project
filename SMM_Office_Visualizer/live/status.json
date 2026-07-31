@@ -1,19 +1,20 @@
 {
-  "generated_at": "2026-08-01T01:45:00Z",
-  "generated_by": "CEO session — foundation + tooling + live-office pass",
+  "generated_at": "2026-08-01T02:10:00Z",
+  "generated_by": "CEO session — Phase 2 kickoff",
   "departments": [
     {
       "id": "research",
       "name": "Research",
       "agent": "researcher",
       "room": "Research Bay",
-      "status": "idle",
-      "current_task": null,
+      "status": "active",
+      "current_task": "Phase 2: live market research on the highest-leverage AI-automatable income streams, Aug 2026 — 3 parallel angles (digital products/content, service automation, passive/programmatic)",
       "last_completed": [
         "MCP connector research (research/mcp-connectors-2026-08-01.md)",
-        "Claude Code skills/plugin ecosystem research (research/claude-skills-plugins-2026-08-01.md)"
+        "Claude Code skills/plugin ecosystem research (research/claude-skills-plugins-2026-08-01.md)",
+        "Realtime push options research (research/realtime-push-options-2026-08-01.md)"
       ],
-      "notes": "Dispatched as general-purpose this round (custom researcher agent pending session restart). Queued next: Phase 2 market research."
+      "notes": "Dispatched as general-purpose (custom researcher agent still not registering — restart didn't pick it up, not blocking, using general-purpose with the same operating rules instead)."
     },
     {
       "id": "strategy",
@@ -23,7 +24,7 @@
       "status": "idle",
       "current_task": null,
       "last_completed": [],
-      "notes": "Not yet dispatched. Queued for Phase 3 venture selection."
+      "notes": "Queued next: turn Phase 2 findings into 2-4 named ventures (Phase 3)."
     },
     {
       "id": "design",
@@ -40,17 +41,18 @@
       "name": "Web Development",
       "agent": "web-developer",
       "room": "Dev Floor",
-      "status": "active",
-      "current_task": "Building the GitHub Pages live office webapp",
+      "status": "idle",
+      "current_task": null,
       "last_completed": [
         "CLAUDE.md, MASTERPROMPT.md, docs/founding-brief.md",
         "5 department sub-agent definitions",
         "office.html (static offline fallback)",
         "Playwright MCP installed (pending approval)",
         "3 skill plugins installed (document-skills, example-skills, marketing-skills)",
-        "office-live.html published as a Claude Artifact (Google Drive-backed)"
+        "office-live.html published as a Claude Artifact (Google Drive-backed)",
+        "live/index.html + status.json published on GitHub Pages, wired to ntfy.sh for real push updates"
       ],
-      "notes": "This is the CEO session doing the work directly."
+      "notes": "Idle while Research runs Phase 2 — back up for Phase 4 builds once a venture is picked."
     },
     {
       "id": "marketing",
@@ -64,8 +66,6 @@
     }
   ],
   "chairman_todo": [
-    {"text": "Enable GitHub Pages for this repo (Settings → Pages → Deploy from branch → main → /root) so this page goes live.", "done": false},
-    {"text": "Restart Claude Code once (close/reopen) to activate the 5 department sub-agents and approve the Playwright MCP server.", "done": false},
     {"text": "Create a Stripe account when the first venture is ready to charge money.", "done": false},
     {"text": "Create a Resend account when the first newsletter/lead-capture funnel is built.", "done": false},
     {"text": "Create a Bluesky account + app password for free/legal social distribution.", "done": false},
@@ -78,8 +78,8 @@
     "X's free developer API tier is gone as of Feb 2026 — treat as pay-per-use, not free."
   ],
   "time_ruler": {
-    "usage_note": "Foundation build + tooling research/install + live office pass, one extended session.",
-    "recommended_stopping_point": "After this page is verified live on GitHub Pages — then Phase 2 (market research) starts fresh."
+    "usage_note": "Phase 2 market research now running.",
+    "recommended_stopping_point": "After Phase 2 findings are written up and reviewed, before Phase 3 venture selection."
   },
-  "phase": "Phase 1.9 — tooling + live dashboard done. Phase 2 (market research) starts next session."
+  "phase": "Phase 2 — market & method research, in progress."
 }
