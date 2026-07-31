@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMM Office — Live</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f6f5f0;
+    --sheet:       #fcfcfa;
+    --room:        #fcfcfb;
+    --ink:         #0b0b0b;
+    --ink-2:       #52514e;
+    --ink-muted:   #8c8a80;
+    --line:        #c7c4b6;
+    --line-strong: #171614;
+    --grid-line:   rgba(23,22,20,0.045);
+    --good:        #0ca30c;
+    --warning:     #fab219;
+    --critical:    #d03b3b;
+    --dept-research:  #2a78d6;
+    --dept-strategy:  #eb6834;
+    --dept-design:    #1baf7a;
+    --dept-webdev:    #c98500;
+    --dept-marketing: #cf5286;
+    --shadow: 0 1px 0 rgba(23,22,20,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page:        #111110;
+      --sheet:       #171614;
+      --room:        #1b1a18;
+      --ink:         #f5f4f0;
+      --ink-2:       #c3c0b4;
+      --ink-muted:   #8c8a80;
+      --line:        #38362f;
+      --line-strong: #cfccc0;
+      --grid-line:   rgba(207,204,192,0.06);
+      --good:        #22c022;
+      --warning:     #fab219;
+      --critical:    #ef6b6b;
+      --dept-research:  #4d93e8;
+      --dept-strategy:  #e2703e;
+      --dept-design:    #2bbd85;
+      --dept-webdev:    #d69a2c;
+      --dept-marketing: #e07aa8;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:        #111110;
+    --sheet:       #171614;
+    --room:        #1b1a18;
+    --ink:         #f5f4f0;
+    --ink-2:       #c3c0b4;
+    --ink-muted:   #8c8a80;
+    --line:        #38362f;
+    --line-strong: #cfccc0;
+    --grid-line:   rgba(207,204,192,0.06);
+    --good:        #22c022;
+    --warning:     #fab219;
+    --critical:    #ef6b6b;
+    --dept-research:  #4d93e8;
+    --dept-strategy:  #e2703e;
+    --dept-design:    #2bbd85;
+    --dept-webdev:    #d69a2c;
+    --dept-marketing: #e07aa8;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: clamp(14px, 3vw, 32px);
+  }
+  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  .sheet {
+    max-width: 1180px; margin: 0 auto; background: var(--sheet);
+    border: 1.5px solid var(--line-strong);
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .titleblock { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 18px 22px; border-bottom: 1.5px solid var(--line-strong); }
+  .titleblock h1 { margin: 0; font-size: 19px; letter-spacing: 0.02em; }
+  .titleblock .designation { font-size: 11px; color: var(--ink-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .conn { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); text-align: right; }
+  .conn .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .conn .dot.live { background: var(--good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 20%, transparent); }
+  .conn .dot.stale { background: var(--warning); }
+  .conn .dot.down { background: var(--critical); }
+  .conn .dot.loading { background: var(--ink-muted); animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  main { padding: 20px; }
+  .degraded { border: 1.5px dashed var(--line); padding: 22px; text-align: center; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+  .degraded strong { color: var(--ink); }
+
+  .floor { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .room { grid-column: span 1; border: 1.5px solid var(--line-strong); background: var(--room); box-shadow: var(--shadow); display: flex; flex-direction: column; transition: grid-column 180ms ease; }
+  .room.expanded { grid-column: 1 / -1; }
+  .room.chairman { border-style: double; border-width: 3px; }
+  .room.help-active { border-color: var(--critical); }
+  .room-door { all: unset; cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; gap: 10px; }
+  .room-door:focus-visible { outline: 2px solid var(--dept-research); outline-offset: -2px; }
+  .room-id { font-size: 10px; color: var(--ink-muted); letter-spacing: 0.06em; }
+  .room-name { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .room-agent { font-size: 11px; color: var(--ink-muted); }
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .status-dot.idle { background: var(--ink-muted); }
+  .status-dot.active { background: var(--good); }
+  .status-dot.blocked { background: var(--warning); }
+  .chevron { font-size: 11px; color: var(--ink-muted); transition: transform 160ms ease; }
+  .room.expanded .chevron { transform: rotate(90deg); }
+  .room-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .room.expanded .room-body { display: block; padding-top: 12px; }
+  .room-body h4 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-muted); margin: 12px 0 6px; font-weight: 600; }
+  .room-body h4:first-child { margin-top: 0; }
+  .room-body ul { margin: 0; padding-left: 18px; }
+  .room-body li { margin-bottom: 3px; }
+  .task-line { color: var(--ink); font-weight: 500; }
+  .chairman-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .chairman-body { grid-template-columns: 1fr; } }
+  .todo-list { list-style: none; margin: 0; padding: 0; }
+  .todo-list li { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .todo-list li:last-child { border-bottom: none; }
+  .todo-list input[type="checkbox"] { margin-top: 3px; accent-color: var(--good); }
+  .empty { font-style: italic; color: var(--ink-muted); font-size: 12.5px; }
+  .empty.ok::before { content: "✓ "; color: var(--good); font-style: normal; }
+  .help-list li { color: var(--critical); font-weight: 500; }
+  .corridor { border: 1.5px solid var(--line-strong); background: var(--room); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .corridor .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .corridor .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); }
+  .corridor .phase { font-size: 13px; font-weight: 600; }
+  .meter { width: 100%; height: 6px; background: var(--line); position: relative; overflow: hidden; }
+  .meter i { display: block; height: 100%; background: var(--dept-research); width: 0%; transition: width 400ms ease; }
+  .corridor .note { font-size: 12.5px; color: var(--ink-2); }
+  footer { border-top: 1.5px solid var(--line-strong); padding: 12px 22px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--ink-muted); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="titleblock">
+    <div>
+      <h1>SMM Office — Live Floor Plan</h1>
+      <div class="designation">Simon Money Maker · Internal Ops View</div>
+    </div>
+    <div class="conn" id="conn">
+      <span class="dot loading" id="conn-dot"></span>
+      <span id="conn-text">Loading status.json…</span>
+    </div>
+  </div>
+
+  <main id="main">
+    <div class="degraded" id="loading">Loading live office status…</div>
+  </main>
+
+  <footer>
+    <div class="legend">
+      <span><i class="status-dot idle" style="display:inline-block"></i>Idle</span>
+      <span><i class="status-dot active" style="display:inline-block"></i>Active</span>
+      <span><i class="status-dot blocked" style="display:inline-block"></i>Blocked</span>
+    </div>
+    <div id="updated-at">Not yet loaded</div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var STATUS_URL = 'status.json';
+  var POLL_MS = 8000;
+
+  var DEPT_META = {
+    research:  { accent: 'var(--dept-research)',  code: 'RM-01' },
+    strategy:  { accent: 'var(--dept-strategy)',  code: 'RM-02' },
+    design:    { accent: 'var(--dept-design)',    code: 'RM-03' },
+    webdev:    { accent: 'var(--dept-webdev)',    code: 'RM-04' },
+    marketing: { accent: 'var(--dept-marketing)', code: 'RM-05' }
+  };
+
+  var expanded = new Set();
+  var chairmanExpanded = false;
+  var lastGoodData = null;
+  var lastFetchedAt = null;
+  var consecutiveFailures = 0;
+
+  var mainEl = document.getElementById('main');
+  var connDot = document.getElementById('conn-dot');
+  var connText = document.getElementById('conn-text');
+  var updatedAtEl = document.getElementById('updated-at');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function setConn(state, text) { connDot.className = 'dot ' + state; connText.textContent = text; }
+  function timeAgo(ms) {
+    if (!ms) return 'just now';
+    var s = Math.round((Date.now() - ms) / 1000);
+    if (s < 5) return 'just now';
+    if (s < 60) return s + 's ago';
+    var m = Math.round(s / 60);
+    if (m < 60) return m + 'm ago';
+    return Math.round(m / 60) + 'h ago';
+  }
+  function renderDegraded(message, hint) {
+    mainEl.innerHTML = '<div class="degraded"><strong>' + esc(message) + '</strong>' + (hint ? '<br>' + esc(hint) : '') + '</div>';
+  }
+  function statusDotClass(status) {
+    if (status === 'active') return 'active';
+    if (status === 'blocked') return 'blocked';
+    return 'idle';
+  }
+  function toggleRoom(id) {
+    if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+    if (lastGoodData) renderData(lastGoodData, lastFetchedAt);
+  }
+  function toggleChairman() {
+    chairmanExpanded = !chairmanExpanded;
+    if (lastGoodData) renderData(lastGoodData, lastFetchedAt);
+  }
+  window.__smmToggleRoom = toggleRoom;
+  window.__smmToggleChairman = toggleChairman;
+
+  function renderData(data, fetchedAt) {
+    lastGoodData = data;
+    lastFetchedAt = fetchedAt || Date.now();
+    setConn('live', 'Live — updated every ' + Math.round(POLL_MS/1000) + 's');
+    updatedAtEl.textContent = 'Updated ' + timeAgo(lastFetchedAt);
+
+    var depts = data.departments || [];
+    var roomsHtml = depts.map(function (d) {
+      var meta = DEPT_META[d.id] || { accent: 'var(--ink-muted)', code: '—' };
+      var isOpen = expanded.has(d.id);
+      var completed = (d.last_completed || []).map(function (item) { return '<li>' + esc(item) + '</li>'; }).join('') || '<li class="empty">Nothing logged yet</li>';
+      return (
+        '<div class="room' + (isOpen ? ' expanded' : '') + '" style="border-left:4px solid ' + meta.accent + '">' +
+          '<button class="room-door" onclick="window.__smmToggleRoom(\'' + d.id + '\')" aria-expanded="' + isOpen + '">' +
+            '<span>' +
+              '<div class="room-id mono">' + esc(meta.code) + ' · ' + esc(d.room || '') + '</div>' +
+              '<div class="room-name">' + esc(d.name) + '</div>' +
+              '<div class="room-agent mono">agent: ' + esc(d.agent) + '</div>' +
+            '</span>' +
+            '<span style="display:flex;align-items:center;gap:10px">' +
+              '<span class="status-pill"><span class="status-dot ' + statusDotClass(d.status) + '"></span>' + esc(d.status) + '</span>' +
+              '<span class="chevron">&#9656;</span>' +
+            '</span>' +
+          '</button>' +
+          '<div class="room-body">' +
+            '<h4>Current task</h4><div class="task-line">' + esc(d.current_task || 'Nothing in progress') + '</div>' +
+            '<h4>Last completed</h4><ul>' + completed + '</ul>' +
+            (d.notes ? '<h4>Notes</h4><div>' + esc(d.notes) + '</div>' : '') +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    var todos = data.chairman_todo || [];
+    var todoHtml = todos.length
+      ? '<ul class="todo-list">' + todos.map(function (t) { return '<li><input type="checkbox" disabled' + (t.done ? ' checked' : '') + '><span>' + esc(t.text) + '</span></li>'; }).join('') + '</ul>'
+      : '<div class="empty ok">Nothing outstanding</div>';
+
+    var help = data.help_needed || [];
+    var helpHtml = help.length
+      ? '<ul class="todo-list help-list">' + help.map(function (h) { return '<li>&#9888; ' + esc(h.text || h) + '</li>'; }).join('') + '</ul>'
+      : '<div class="empty ok">No blockers</div>';
+
+    var hasHelp = help.length > 0;
+    var chairmanHtml =
+      '<div class="room chairman' + (hasHelp ? ' help-active' : '') + (chairmanExpanded ? ' expanded' : '') + '">' +
+        '<button class="room-door" onclick="window.__smmToggleChairman()" aria-expanded="' + chairmanExpanded + '">' +
+          '<span><div class="room-id mono">HQ · Chairman\'s Office</div><div class="room-name">Chairman\'s Dashboard</div></span>' +
+          '<span style="display:flex;align-items:center;gap:10px">' +
+            (hasHelp ? '<span class="status-pill" style="color:var(--critical)"><span class="status-dot blocked"></span>' + help.length + ' need' + (help.length===1?'s':'') + ' help</span>' : '<span class="status-pill"><span class="status-dot idle"></span>clear</span>') +
+            '<span class="chevron">&#9656;</span>' +
+          '</span>' +
+        '</button>' +
+        '<div class="room-body"><div class="chairman-body">' +
+          '<div><h4>TODO for the Chairman</h4>' + todoHtml + '</div>' +
+          '<div><h4>Help needed</h4>' + helpHtml + '</div>' +
+        '</div></div>' +
+      '</div>';
+
+    var tr = data.time_ruler || {};
+    var corridorHtml =
+      '<div class="corridor">' +
+        '<div class="row"><span class="label">Time Ruler</span><span class="phase">' + esc(data.phase || '') + '</span></div>' +
+        '<div class="meter"><i style="width:100%"></i></div>' +
+        '<div class="note">' + esc(tr.usage_note || '') + (tr.recommended_stopping_point ? ' — <strong>Next stop:</strong> ' + esc(tr.recommended_stopping_point) : '') + '</div>' +
+      '</div>';
+
+    var legalHtml = '';
+    if (data.legal_flags && data.legal_flags.length) {
+      legalHtml =
+        '<div class="corridor" style="margin-top:14px;border-color:var(--critical)">' +
+          '<div class="row"><span class="label" style="color:var(--critical)">Legal / ToS flags on file</span></div>' +
+          '<ul style="margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink-2)">' +
+            data.legal_flags.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') +
+          '</ul>' +
+        '</div>';
+    }
+
+    mainEl.innerHTML = '<div class="floor">' + roomsHtml + chairmanHtml + '</div>' + corridorHtml + legalHtml;
+  }
+
+  function fetchStatus() {
+    fetch(STATUS_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        consecutiveFailures = 0;
+        renderData(data, Date.now());
+      })
+      .catch(function (err) {
+        consecutiveFailures++;
+        if (lastGoodData) {
+          setConn('stale', 'Could not refresh (' + err.message + ') — showing last known status');
+        } else {
+          setConn('down', 'Could not load status.json');
+          renderDegraded('Could not load status.json.', err.message + '. If this page was just published, GitHub Pages can take a minute to go live.');
+        }
+      });
+  }
+
+  fetchStatus();
+  setInterval(fetchStatus, POLL_MS);
+})();
+</script>
+
+</body>
+</html>

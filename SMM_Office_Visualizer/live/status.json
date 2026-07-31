@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-08-01T01:45:00Z",
+  "generated_by": "CEO session — foundation + tooling + live-office pass",
+  "departments": [
+    {
+      "id": "research",
+      "name": "Research",
+      "agent": "researcher",
+      "room": "Research Bay",
+      "status": "idle",
+      "current_task": null,
+      "last_completed": [
+        "MCP connector research (research/mcp-connectors-2026-08-01.md)",
+        "Claude Code skills/plugin ecosystem research (research/claude-skills-plugins-2026-08-01.md)"
+      ],
+      "notes": "Dispatched as general-purpose this round (custom researcher agent pending session restart). Queued next: Phase 2 market research."
+    },
+    {
+      "id": "strategy",
+      "name": "Strategy",
+      "agent": "strategist",
+      "room": "Strategy Room",
+      "status": "idle",
+      "current_task": null,
+      "last_completed": [],
+      "notes": "Not yet dispatched. Queued for Phase 3 venture selection."
+    },
+    {
+      "id": "design",
+      "name": "Product Design",
+      "agent": "product-designer",
+      "room": "Design Studio",
+      "status": "idle",
+      "current_task": null,
+      "last_completed": [],
+      "notes": "Not yet dispatched. Queued for Phase 4."
+    },
+    {
+      "id": "webdev",
+      "name": "Web Development",
+      "agent": "web-developer",
+      "room": "Dev Floor",
+      "status": "active",
+      "current_task": "Building the GitHub Pages live office webapp",
+      "last_completed": [
+        "CLAUDE.md, MASTERPROMPT.md, docs/founding-brief.md",
+        "5 department sub-agent definitions",
+        "office.html (static offline fallback)",
+        "Playwright MCP installed (pending approval)",
+        "3 skill plugins installed (document-skills, example-skills, marketing-skills)",
+        "office-live.html published as a Claude Artifact (Google Drive-backed)"
+      ],
+      "notes": "This is the CEO session doing the work directly."
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "agent": "marketer",
+      "room": "Marketing Loft",
+      "status": "idle",
+      "current_task": null,
+      "last_completed": [],
+      "notes": "Not yet dispatched. Queued for Phase 5. Legal flags already on file re: Reddit/LinkedIn/X."
+    }
+  ],
+  "chairman_todo": [
+    {"text": "Enable GitHub Pages for this repo (Settings → Pages → Deploy from branch → main → /root) so this page goes live.", "done": false},
+    {"text": "Restart Claude Code once (close/reopen) to activate the 5 department sub-agents and approve the Playwright MCP server.", "done": false},
+    {"text": "Create a Stripe account when the first venture is ready to charge money.", "done": false},
+    {"text": "Create a Resend account when the first newsletter/lead-capture funnel is built.", "done": false},
+    {"text": "Create a Bluesky account + app password for free/legal social distribution.", "done": false},
+    {"text": "Create a Supabase account once a venture needs a real backend.", "done": false}
+  ],
+  "help_needed": [],
+  "legal_flags": [
+    "Do not use Reddit's free API tier to market a revenue venture — ToS-restricted to non-commercial use.",
+    "Do not use unofficial LinkedIn scraping MCPs — real account-ban risk.",
+    "X's free developer API tier is gone as of Feb 2026 — treat as pay-per-use, not free."
+  ],
+  "time_ruler": {
+    "usage_note": "Foundation build + tooling research/install + live office pass, one extended session.",
+    "recommended_stopping_point": "After this page is verified live on GitHub Pages — then Phase 2 (market research) starts fresh."
+  },
+  "phase": "Phase 1.9 — tooling + live dashboard done. Phase 2 (market research) starts next session."
+}
