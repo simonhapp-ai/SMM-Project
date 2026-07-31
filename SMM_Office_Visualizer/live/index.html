@@ -177,7 +177,10 @@
 <script>
 (function () {
   var STATUS_URL = 'status.json';
-  var POLL_MS = 8000;
+  var POLL_MS = 25000; // safety-net fallback only — ntfy push is the primary update path
+  var NTFY_TOPIC = 'smm-office-live-952b5886a899'; // unguessable-ish, but necessarily visible in page source to any viewer
+  var NTFY_SSE_URL = 'https://ntfy.sh/' + NTFY_TOPIC + '/sse';
+  var pushConnected = false;
 
   var DEPT_META = {
     research:  { accent: 'var(--dept-research)',  code: 'RM-01' },
@@ -235,7 +238,7 @@
   function renderData(data, fetchedAt) {
     lastGoodData = data;
     lastFetchedAt = fetchedAt || Date.now();
-    setConn('live', 'Live — updated every ' + Math.round(POLL_MS/1000) + 's');
+    setConn('live', pushConnected ? 'Live — instant push connected' : 'Live — polling (push reconnecting…)');
     updatedAtEl.textContent = 'Updated ' + timeAgo(lastFetchedAt);
 
     var depts = data.departments || [];
@@ -334,7 +337,27 @@
       });
   }
 
+  function connectPush() {
+    if (!window.EventSource) return; // no push support — polling still works
+    var es = new EventSource(NTFY_SSE_URL);
+    es.addEventListener('open', function () {
+      pushConnected = true;
+      if (lastGoodData) setConn('live', 'Live — instant push connected');
+    });
+    es.addEventListener('message', function () {
+      // Payload is just a wake-up ping — status.json (fetched fresh below) is the source of truth,
+      // so we don't trust the ntfy message body itself, just treat it as "refetch now."
+      fetchStatus();
+    });
+    es.addEventListener('error', function () {
+      pushConnected = false;
+      if (lastGoodData) setConn('stale', 'Push reconnecting… falling back to ' + Math.round(POLL_MS/1000) + 's polling');
+      // EventSource auto-reconnects on its own; nothing else to do here.
+    });
+  }
+
   fetchStatus();
+  connectPush();
   setInterval(fetchStatus, POLL_MS);
 })();
 </script>

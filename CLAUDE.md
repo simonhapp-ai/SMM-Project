@@ -47,9 +47,17 @@ Simon's original brief mentioned using "`ultracode` settings" for heavy build ta
 
 All three contain the sections the Chairman requires, and the *real* company structure must match them: department status, current task + last completed, Chairman's TODO + a distinct HELP-needed panel, Time Ruler.
 
-### Updating live status (the version that matters day to day)
+### Updating live status (the version that matters day to day) — now genuinely push-based
 
-Edit `SMM_Office_Visualizer/live/status.json` directly (departments array with `id`/`name`/`agent`/`room`/`status`/`current_task`/`last_completed`/`notes`, plus `chairman_todo`, `help_needed`, `legal_flags`, `time_ruler`, `phase`), commit, push. That's it — the page picks it up within 8 seconds for anyone with it open. Do this as part of any work that changes department state, same discipline as the old static file.
+The page is wired to **ntfy.sh** (open-source pub/sub, public instance, zero account needed) for instant delivery — `EventSource` connected to `https://ntfy.sh/smm-office-live-952b5886a899/sse`. This topic name is necessarily visible in the page's own source (any viewer can read it) — it's obscurity, not a real secret; low-stakes since a spoofed message can only trigger an early `status.json` refetch, never corrupt actual data. `status.json` stays the single source of truth; ntfy messages are just a "wake up and refetch now" ping, not a data payload the page trusts directly (deliberate: avoids two channels ever disagreeing about the real state). Polling every 25s remains as a fallback in case the push connection drops.
+
+**To push a live update, every time:**
+1. Edit `SMM_Office_Visualizer/live/status.json` (departments array with `id`/`name`/`agent`/`room`/`status`/`current_task`/`last_completed`/`notes`, plus `chairman_todo`, `help_needed`, `legal_flags`, `time_ruler`, `phase`), commit, push — same as before, this is still the durable ground truth for any freshly-opened tab.
+2. Then fire the push ping so already-open tabs update in under a couple seconds instead of waiting up to 25s:
+   ```bash
+   curl -d "status updated $(date -u +%FT%TZ)" https://ntfy.sh/smm-office-live-952b5886a899
+   ```
+Both steps, every time department state changes. Verified 2026-08-01 with a real publish→SSE-receive round-trip via curl before wiring it into the page (confirmed sub-second delivery and open CORS on the ntfy endpoint) — see `research/realtime-push-options-2026-08-01.md` for the full comparison against Supabase/Ably/Pusher/Firebase/Cloudflare and why ntfy won (only option needing zero new account).
 
 ### Drive update mechanism (office-live.html only, secondary path)
 
@@ -116,6 +124,13 @@ The Office Visualizer's Time Ruler panel is a static visual mirror of this — i
 ## Progress & Assignments Log
 
 Newest entry first. Every real work session appends here — this is the "real assignments and progress," not a verbatim copy of the founding brief.
+
+### 2026-08-01 — Real push updates via ntfy.sh
+- Simon pushed back on both live views being polling-only ("not only pushing and pulling... I want to always know whats going on") and asked for real research into genuine push-based live updating.
+- Dispatched research comparing Supabase Realtime, Pusher, Ably, Firebase RTDB, Cloudflare Durable Objects, PartyKit, PubNub, and ntfy.sh against the actual constraint (Claude Code publishes via bare curl, no persistent process, near-zero budget) — full comparison in `research/realtime-push-options-2026-08-01.md`. Cloudflare's dedicated Pub/Sub product turned out to be retired (Aug 2025); Pusher needs HMAC request-signing; Firebase needs open security rules or OAuth juggling.
+- **Picked ntfy.sh**: open-source, zero account needed, one curl line to publish, native `EventSource` (~4 lines) to subscribe. Verified for real (not just from docs) with an actual publish → SSE-receive round-trip via curl before building anything on top of it.
+- Wired `SMM_Office_Visualizer/live/index.html` to it: `EventSource` listens on a dedicated topic and triggers an immediate `status.json` refetch on any message (the ping carries no data itself — `status.json` stays the single source of truth, avoiding two channels ever disagreeing). 25s polling remains as a fallback if the push connection drops.
+- Confirmed the pushed topic name is necessarily visible in page source to any viewer (can't be a real secret client-side) — documented as an accepted, low-stakes tradeoff, not an oversight.
 
 ### 2026-08-01 — GitHub Pages live webapp (primary live view)
 - Simon wanted "another way" beyond the Drive-backed Artifact — a genuinely connected webapp, not a workaround-heavy one.
