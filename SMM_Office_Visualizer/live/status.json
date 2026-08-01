@@ -1,20 +1,21 @@
 {
-  "generated_at": "2026-08-01T02:10:00Z",
-  "generated_by": "CEO session — Phase 2 kickoff",
+  "generated_at": "2026-08-01T02:20:00Z",
+  "generated_by": "CEO session — Phase 2 research + venture selection + Duesy v1 shipped",
   "departments": [
     {
       "id": "research",
       "name": "Research",
       "agent": "researcher",
       "room": "Research Bay",
-      "status": "active",
-      "current_task": "Phase 2: live market research on the highest-leverage AI-automatable income streams, Aug 2026 — 3 parallel angles (digital products/content, service automation, passive/programmatic)",
+      "status": "idle",
+      "current_task": null,
       "last_completed": [
-        "MCP connector research (research/mcp-connectors-2026-08-01.md)",
-        "Claude Code skills/plugin ecosystem research (research/claude-skills-plugins-2026-08-01.md)",
-        "Realtime push options research (research/realtime-push-options-2026-08-01.md)"
+        "MCP connector research",
+        "Claude Code skills/plugin ecosystem research",
+        "Realtime push options research",
+        "Phase 2: 3 parallel angles on AI-automatable income streams (digital products, service automation, passive/programmatic)"
       ],
-      "notes": "Dispatched as general-purpose (custom researcher agent still not registering — restart didn't pick it up, not blocking, using general-purpose with the same operating rules instead)."
+      "notes": "Phase 2 done — see research/phase2-*-2026-08-01.md. Next: fresh research once Duesy gets real distribution signal."
     },
     {
       "id": "strategy",
@@ -23,8 +24,11 @@
       "room": "Strategy Room",
       "status": "idle",
       "current_task": null,
-      "last_completed": [],
-      "notes": "Queued next: turn Phase 2 findings into 2-4 named ventures (Phase 3)."
+      "last_completed": [
+        "Narrowed Phase 2 findings to 5 validated micro-SaaS gaps",
+        "Selected venture #1: Duesy (freelancer invoice reminder tool) — see companies/duesy/decisions.md"
+      ],
+      "notes": "Next: pick venture #2 from the remaining 4 candidates once Duesy has a distribution signal."
     },
     {
       "id": "design",
@@ -33,26 +37,24 @@
       "room": "Design Studio",
       "status": "idle",
       "current_task": null,
-      "last_completed": [],
-      "notes": "Not yet dispatched. Queued for Phase 4."
+      "last_completed": [
+        "Duesy v1 spec + identity (companies/duesy/spec.md) — warm amber accent, distinct from SMM's own blueprint identity"
+      ],
+      "notes": "Next: v2 spec (automation) once Supabase + Resend accounts exist."
     },
     {
       "id": "webdev",
       "name": "Web Development",
       "agent": "web-developer",
       "room": "Dev Floor",
-      "status": "idle",
-      "current_task": null,
+      "status": "active",
+      "current_task": "Just shipped Duesy v1 (companies/duesy/) — verifying deploy",
       "last_completed": [
-        "CLAUDE.md, MASTERPROMPT.md, docs/founding-brief.md",
-        "5 department sub-agent definitions",
-        "office.html (static offline fallback)",
-        "Playwright MCP installed (pending approval)",
-        "3 skill plugins installed (document-skills, example-skills, marketing-skills)",
-        "office-live.html published as a Claude Artifact (Google Drive-backed)",
-        "live/index.html + status.json published on GitHub Pages, wired to ntfy.sh for real push updates"
+        "CLAUDE.md, MASTERPROMPT.md, docs/founding-brief.md, 5 department sub-agents",
+        "office.html + office-live.html (Artifact) + live/index.html (GitHub Pages, ntfy push)",
+        "Duesy v1: invoice tracker + reminder-message generator, localStorage-only, zero new accounts, verified via headless-browser testing (data entry, urgency buckets, reminder dialog, light/dark)"
       ],
-      "notes": "Idle while Research runs Phase 2 — back up for Phase 4 builds once a venture is picked."
+      "notes": "Duesy is live at companies/duesy/ on GitHub Pages."
     },
     {
       "id": "marketing",
@@ -62,14 +64,13 @@
       "status": "idle",
       "current_task": null,
       "last_completed": [],
-      "notes": "Not yet dispatched. Queued for Phase 5. Legal flags already on file re: Reddit/LinkedIn/X."
+      "notes": "Up next: Phase 5 launch for Duesy on Indie Hackers, Product Hunt, Bluesky — SMM's legal free channels. Legal flags already on file re: Reddit/LinkedIn/X."
     }
   ],
   "chairman_todo": [
-    {"text": "Create a Stripe account when the first venture is ready to charge money.", "done": false},
-    {"text": "Create a Resend account when the first newsletter/lead-capture funnel is built.", "done": false},
-    {"text": "Create a Bluesky account + app password for free/legal social distribution.", "done": false},
-    {"text": "Create a Supabase account once a venture needs a real backend.", "done": false}
+    {"text": "Create a Supabase + Resend account when ready to unlock Duesy v2 (real accounts, sync, automated email sending).", "done": false},
+    {"text": "Create a Stripe account when Duesy v2 is ready to charge for automation.", "done": false},
+    {"text": "Create a Bluesky account + app password for free/legal social distribution (needed for Duesy's launch).", "done": false}
   ],
   "help_needed": [],
   "legal_flags": [
@@ -78,8 +79,8 @@
     "X's free developer API tier is gone as of Feb 2026 — treat as pay-per-use, not free."
   ],
   "time_ruler": {
-    "usage_note": "Phase 2 market research now running.",
-    "recommended_stopping_point": "After Phase 2 findings are written up and reviewed, before Phase 3 venture selection."
+    "usage_note": "Phase 2 research, venture selection, and Duesy v1 build all done in one extended session.",
+    "recommended_stopping_point": "After Duesy's deploy is confirmed live — Phase 5 (launch/marketing) is a good next-session start."
   },
-  "phase": "Phase 2 — market & method research, in progress."
+  "phase": "Phase 4 done (Duesy v1 built + shipped) — Phase 5 (marketing/launch) queued next."
 }

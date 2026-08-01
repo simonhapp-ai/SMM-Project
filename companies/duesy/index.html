@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duesy — chase invoices without the awkward emails</title>
+<meta name="description" content="Track who owes you money and get the perfectly-worded reminder to send them. No accounting software, no signup, nothing leaves your browser.">
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #faf7f2;
+    --surface:     #ffffff;
+    --surface-2:   #f3ede3;
+    --ink:         #241f18;
+    --ink-2:       #6b6255;
+    --ink-muted:   #a49a89;
+    --line:        #e6ddd0;
+    --accent:      #c8802a;
+    --accent-ink:  #ffffff;
+    --accent-tint: #f6e6cf;
+    --good:        #3f7d4f;
+    --good-tint:   #e3efe4;
+    --warn:        #c8802a;
+    --warn-tint:   #f6e6cf;
+    --bad:         #b5432f;
+    --bad-tint:    #f8e2dc;
+    --shadow: 0 1px 2px rgba(36,31,24,0.06), 0 8px 24px rgba(36,31,24,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page:        #17140f;
+      --surface:     #211c15;
+      --surface-2:   #2a2419;
+      --ink:         #f4efe6;
+      --ink-2:       #c4b8a5;
+      --ink-muted:   #8a7f6c;
+      --line:        #362f24;
+      --accent:      #e0993f;
+      --accent-ink:  #1a1409;
+      --accent-tint: #3a2c15;
+      --good:        #6fbf82;
+      --good-tint:   #1f2f22;
+      --warn:        #e0993f;
+      --warn-tint:   #3a2c15;
+      --bad:         #e2735c;
+      --bad-tint:    #3a201a;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #17140f; --surface: #211c15; --surface-2: #2a2419; --ink: #f4efe6; --ink-2: #c4b8a5; --ink-muted: #8a7f6c;
+    --line: #362f24; --accent: #e0993f; --accent-ink: #1a1409; --accent-tint: #3a2c15;
+    --good: #6fbf82; --good-tint: #1f2f22; --warn: #e0993f; --warn-tint: #3a2c15; --bad: #e2735c; --bad-tint: #3a201a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 24px) 80px; }
+
+  header.hero { text-align: center; margin-bottom: 36px; }
+  header.hero .mark { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--accent); margin-bottom: 10px; }
+  header.hero h1 { font-size: clamp(26px, 4vw, 34px); margin: 0 0 10px; text-wrap: balance; letter-spacing: -0.01em; }
+  header.hero p { color: var(--ink-2); font-size: 16px; max-width: 46ch; margin: 0 auto; }
+  header.hero .privacy-note {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-size: 12.5px; color: var(--ink-muted);
+    background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; border-radius: 20px;
+  }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+
+  form#add-form { padding: 20px; margin-bottom: 28px; }
+  form#add-form .grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+  @media (max-width: 720px) { form#add-form .grid { grid-template-columns: 1fr 1fr; } }
+  form#add-form label { display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 5px; font-weight: 600; }
+  form#add-form input {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--page); color: var(--ink); font-size: 14px; font-family: inherit;
+  }
+  form#add-form input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.primary {
+    background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px;
+    padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  button.primary:hover { filter: brightness(1.05); }
+  button.primary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .toolbar .actions { display: flex; gap: 8px; }
+  button.ghost {
+    background: transparent; color: var(--ink-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 12px; font-size: 12.5px; cursor: pointer; font-family: inherit;
+  }
+  button.ghost:hover { color: var(--ink); border-color: var(--ink-muted); }
+
+  section.group { margin-bottom: 28px; }
+  section.group h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted);
+    font-weight: 700; margin: 0 0 10px;
+  }
+  .invoice-list { display: flex; flex-direction: column; gap: 8px; }
+  .invoice-card {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  }
+  .invoice-card .who { min-width: 0; }
+  .invoice-card .client { font-weight: 600; font-size: 14.5px; }
+  .invoice-card .meta { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+  .invoice-card .amount { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .invoice-card .right { display: flex; align-items: center; gap: 10px; flex: none; }
+
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+  .badge.upcoming { background: var(--surface-2); color: var(--ink-2); }
+  .badge.overdue-1 { background: var(--warn-tint); color: var(--warn); }
+  .badge.overdue-2 { background: var(--bad-tint); color: var(--bad); }
+  .badge.overdue-3 { background: var(--bad); color: #fff; }
+  .badge.paid { background: var(--good-tint); color: var(--good); }
+
+  .empty { text-align: center; padding: 32px 20px; color: var(--ink-muted); font-size: 14px; }
+  .empty.first-run { padding: 40px 20px; }
+  .empty.first-run .big { font-size: 15px; color: var(--ink-2); margin-bottom: 4px; }
+
+  dialog#msg-dialog {
+    border: none; border-radius: 14px; padding: 0; max-width: 480px; width: calc(100% - 40px);
+    box-shadow: var(--shadow); color: var(--ink); background: var(--surface);
+  }
+  dialog#msg-dialog::backdrop { background: rgba(20, 16, 10, 0.45); }
+  .dialog-body { padding: 22px; }
+  .dialog-body h3 { margin: 0 0 4px; font-size: 16px; }
+  .dialog-body .sub { font-size: 12.5px; color: var(--ink-muted); margin-bottom: 14px; }
+  .dialog-body textarea {
+    width: 100%; min-height: 150px; border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+    font-family: inherit; font-size: 13.5px; color: var(--ink); background: var(--page); resize: vertical;
+  }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+  .mark-paid { background: transparent; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+  .mark-paid:hover { color: var(--good); border-color: var(--good); }
+
+  footer.foot { text-align: center; margin-top: 40px; font-size: 12px; color: var(--ink-muted); }
+  #theme-toggle { position: fixed; top: 16px; right: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 11px; color: var(--ink-2); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" type="button">Toggle theme</button>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="mark">DUESY</div>
+    <h1>Chase invoices without the awkward emails</h1>
+    <p>Track who owes you money and get the perfectly-worded reminder to send them.</p>
+    <span class="privacy-note">🔒 No signup. Nothing leaves your browser.</span>
+  </header>
+
+  <form id="add-form" class="panel">
+    <div class="grid">
+      <div><label for="f-client">Client</label><input id="f-client" type="text" placeholder="Acme Co." required></div>
+      <div><label for="f-amount">Amount</label><input id="f-amount" type="number" min="0" step="0.01" placeholder="1200" required></div>
+      <div><label for="f-invdate">Invoiced</label><input id="f-invdate" type="date" required></div>
+      <div><label for="f-duedate">Due</label><input id="f-duedate" type="date" required></div>
+      <button class="primary" type="submit">Add invoice</button>
+    </div>
+  </form>
+
+  <div class="toolbar">
+    <span style="font-size:12.5px;color:var(--ink-muted)" id="count-line"></span>
+    <div class="actions">
+      <button class="ghost" id="export-btn" type="button">Export backup</button>
+      <button class="ghost" id="import-btn" type="button">Import backup</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none">
+    </div>
+  </div>
+
+  <div id="board"></div>
+
+  <footer class="foot">Duesy v1 — a Simon Money Maker venture. Your data stays in this browser; export a backup before clearing site data.</footer>
+</div>
+
+<dialog id="msg-dialog">
+  <div class="dialog-body">
+    <h3 id="msg-title">Reminder message</h3>
+    <div class="sub" id="msg-sub"></div>
+    <textarea id="msg-text" readonly></textarea>
+    <div class="dialog-actions">
+      <button class="ghost" id="msg-close" type="button">Close</button>
+      <button class="primary" id="msg-copy" type="button">Copy to clipboard</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var STORE_KEY = 'duesy_invoices_v1';
+
+  function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; } }
+  function save(list) { localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+  function uid() { return 'inv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function fmtMoney(n) { return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtDate(d) { return new Date(d + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+  function daysBetween(a, b) { return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000); }
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+  function bucketOf(inv) {
+    if (inv.paid) return 'paid';
+    var d = daysBetween(todayISO(), inv.due);
+    if (d > 0) return 'upcoming';
+    var overdue = -d;
+    if (overdue <= 7) return 'overdue1';
+    if (overdue <= 30) return 'overdue2';
+    return 'overdue3';
+  }
+
+  function badgeFor(inv) {
+    var b = bucketOf(inv);
+    var d = daysBetween(todayISO(), inv.due);
+    if (b === 'paid') return '<span class="badge paid">Paid</span>';
+    if (b === 'upcoming') return '<span class="badge upcoming">Due in ' + d + 'd</span>';
+    var overdue = -d;
+    if (b === 'overdue1') return '<span class="badge overdue-1">' + overdue + 'd overdue</span>';
+    if (b === 'overdue2') return '<span class="badge overdue-2">' + overdue + 'd overdue</span>';
+    return '<span class="badge overdue-3">' + overdue + 'd overdue</span>';
+  }
+
+  function reminderMessage(inv) {
+    var d = daysBetween(todayISO(), inv.due);
+    var overdue = -d;
+    var amount = fmtMoney(inv.amount);
+    var due = fmtDate(inv.due);
+    if (d > 0) {
+      return 'Hi ' + inv.client + ',\n\nJust a friendly heads-up that invoice for ' + amount + ' is due on ' + due + '. No action needed if it\'s already scheduled — just flagging it in case it slipped by.\n\nThanks!';
+    }
+    if (overdue <= 7) {
+      return 'Hi ' + inv.client + ',\n\nHope you\'re doing well! I noticed the invoice for ' + amount + ' (due ' + due + ') hasn\'t come through yet. Could you let me know when I might expect payment?\n\nThanks so much!';
+    }
+    if (overdue <= 30) {
+      return 'Hi ' + inv.client + ',\n\nFollowing up again on the invoice for ' + amount + ', which was due ' + due + ' and is now ' + overdue + ' days overdue. Could you give me an update on when this will be settled?\n\nLet me know if there\'s anything blocking it on your end — happy to help sort it out.';
+    }
+    return 'Hi ' + inv.client + ',\n\nThis invoice for ' + amount + ' was due ' + due + ' and is now ' + overdue + ' days overdue. I need to get this resolved — could you confirm a payment date this week?\n\nIf there\'s an issue I should know about, please let me know as soon as possible.';
+  }
+
+  var board = document.getElementById('board');
+  var countLine = document.getElementById('count-line');
+
+  function render() {
+    var list = load();
+    countLine.textContent = list.length
+      ? list.length + ' invoice' + (list.length === 1 ? '' : 's') + ' tracked'
+      : '';
+
+    if (!list.length) {
+      board.innerHTML = '<div class="panel empty first-run"><div class="big">No invoices yet.</div>Add your first one above — Duesy keeps it in this browser only.</div>';
+      return;
+    }
+
+    var groups = { overdue3: [], overdue2: [], overdue1: [], upcoming: [], paid: [] };
+    list.forEach(function (inv) { groups[bucketOf(inv)].push(inv); });
+    ['overdue3', 'overdue2', 'overdue1', 'upcoming'].forEach(function (k) {
+      groups[k].sort(function (a, b) { return new Date(a.due) - new Date(b.due); });
+    });
+    groups.paid.sort(function (a, b) { return new Date(b.due) - new Date(a.due); });
+
+    var sections = [
+      { key: 'overdue3', title: 'Seriously overdue (30+ days)' },
+      { key: 'overdue2', title: 'Overdue (8–30 days)' },
+      { key: 'overdue1', title: 'Just overdue (1–7 days)' },
+      { key: 'upcoming', title: 'Upcoming' },
+      { key: 'paid', title: 'Paid' }
+    ];
+
+    board.innerHTML = sections.filter(function (s) { return groups[s.key].length; }).map(function (s) {
+      var cards = groups[s.key].map(function (inv) {
+        return (
+          '<div class="invoice-card">' +
+            '<div class="who">' +
+              '<div class="client">' + esc(inv.client) + '</div>' +
+              '<div class="meta">Invoiced ' + fmtDate(inv.invdate) + ' · Due ' + fmtDate(inv.due) + '</div>' +
+            '</div>' +
+            '<div class="right">' +
+              '<span class="amount">' + fmtMoney(inv.amount) + '</span>' +
+              badgeFor(inv) +
+              (s.key !== 'paid' ? '<button class="primary" style="padding:7px 12px;font-size:12.5px" onclick="window.__duesyRemind(\'' + inv.id + '\')">Get reminder</button>' : '') +
+              '<button class="mark-paid" onclick="window.__duesyTogglePaid(\'' + inv.id + '\')">' + (s.key === 'paid' ? 'Reopen' : 'Mark paid') + '</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+      return '<section class="group"><h2>' + s.title + ' (' + groups[s.key].length + ')</h2><div class="invoice-list">' + cards + '</div></section>';
+    }).join('');
+  }
+
+  window.__duesyTogglePaid = function (id) {
+    var list = load();
+    var inv = list.find(function (i) { return i.id === id; });
+    if (inv) inv.paid = !inv.paid;
+    save(list);
+    render();
+  };
+
+  var dialog = document.getElementById('msg-dialog');
+  var msgTitle = document.getElementById('msg-title');
+  var msgSub = document.getElementById('msg-sub');
+  var msgText = document.getElementById('msg-text');
+  var msgCopy = document.getElementById('msg-copy');
+
+  window.__duesyRemind = function (id) {
+    var list = load();
+    var inv = list.find(function (i) { return i.id === id; });
+    if (!inv) return;
+    msgTitle.textContent = 'Reminder for ' + inv.client;
+    msgSub.textContent = fmtMoney(inv.amount) + ' · due ' + fmtDate(inv.due);
+    msgText.value = reminderMessage(inv);
+    msgCopy.textContent = 'Copy to clipboard';
+    dialog.showModal();
+  };
+  document.getElementById('msg-close').addEventListener('click', function () { dialog.close(); });
+  msgCopy.addEventListener('click', function () {
+    msgText.select();
+    navigator.clipboard && navigator.clipboard.writeText(msgText.value).then(function () {
+      msgCopy.textContent = 'Copied!';
+      setTimeout(function () { msgCopy.textContent = 'Copy to clipboard'; }, 1500);
+    });
+  });
+
+  document.getElementById('add-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var client = document.getElementById('f-client').value.trim();
+    var amount = parseFloat(document.getElementById('f-amount').value);
+    var invdate = document.getElementById('f-invdate').value;
+    var due = document.getElementById('f-duedate').value;
+    if (!client || isNaN(amount) || !invdate || !due) return;
+    var list = load();
+    list.push({ id: uid(), client: client, amount: amount, invdate: invdate, due: due, paid: false });
+    save(list);
+    e.target.reset();
+    render();
+  });
+
+  document.getElementById('export-btn').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(load(), null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'duesy-backup-' + todayISO() + '.json';
+    a.click();
+  });
+  document.getElementById('import-btn').addEventListener('click', function () {
+    document.getElementById('import-file').click();
+  });
+  document.getElementById('import-file').addEventListener('change', function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var imported = JSON.parse(reader.result);
+        if (!Array.isArray(imported)) throw new Error('bad format');
+        var existing = load();
+        var ids = new Set(existing.map(function (i) { return i.id; }));
+        imported.forEach(function (inv) { if (!ids.has(inv.id)) existing.push(inv); });
+        save(existing);
+        render();
+      } catch (err) { alert('Could not import that file — expected a Duesy backup JSON.'); }
+    };
+    reader.readAsText(file);
+  });
+
+  var toggle = document.getElementById('theme-toggle');
+  var root = document.documentElement;
+  toggle.addEventListener('click', function () {
+    var current = root.getAttribute('data-theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = !current ? (prefersDark ? 'light' : 'dark') : (current === 'dark' ? 'light' : 'dark');
+    root.setAttribute('data-theme', next);
+  });
+
+  document.getElementById('f-duedate').value = todayISO();
+  document.getElementById('f-invdate').value = todayISO();
+  render();
+})();
+</script>
+
+</body>
+</html>
