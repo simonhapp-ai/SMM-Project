@@ -125,6 +125,15 @@ The Office Visualizer's Time Ruler panel is a static visual mirror of this — i
 
 Newest entry first. Every real work session appends here — this is the "real assignments and progress," not a verbatim copy of the founding brief.
 
+### 2026-08-01 — Phase 2 research → venture selection → Duesy v1 shipped
+- Simon confirmed GitHub Pages was enabled and asked to start Phase 2.
+- Dispatched 3 parallel research passes (digital products, service automation, passive/programmatic) on the real Aug 2026 AI-automatable income landscape — `research/phase2-*-2026-08-01.md`. All three converged: hand-built micro-SaaS (Claude Code + GitHub Pages, no Lovable/Replit tax) is the best-evidenced category for SMM's specific setup.
+- Ran a tight follow-up pass to find 5 *specific, validated* micro-SaaS gaps (not guessed ideas) — reviewed them as CEO and picked **Duesy**, a freelancer invoice payment-reminder tool, explicitly over better-evidenced alternatives because its audience is reachable through SMM's actual legal free channels (the others' audiences — local service businesses — aren't). Full reasoning in `companies/duesy/decisions.md`.
+- Scoped v1 deliberately to ship with zero new accounts (localStorage-only, manual copy-paste reminders) rather than block on Supabase/Resend signup; v2 (automation) is an explicit, documented next step once those accounts exist.
+- Built, verified (headless-browser testing with seeded data — urgency buckets, reminder-message tone escalation, both themes), and shipped `companies/duesy/` — live at https://simonhapp-ai.github.io/SMM-Project/companies/duesy/.
+- Updated the live office status + pushed an ntfy ping after each real milestone (venture selection, ship) rather than batching it all at the end.
+- **Not yet done:** Duesy has zero real distribution/marketing yet (Phase 5) — that's the next real work, not more research or a second venture.
+
 ### 2026-08-01 — Real push updates via ntfy.sh
 - Simon pushed back on both live views being polling-only ("not only pushing and pulling... I want to always know whats going on") and asked for real research into genuine push-based live updating.
 - Dispatched research comparing Supabase Realtime, Pusher, Ably, Firebase RTDB, Cloudflare Durable Objects, PartyKit, PubNub, and ntfy.sh against the actual constraint (Claude Code publishes via bare curl, no persistent process, near-zero budget) — full comparison in `research/realtime-push-options-2026-08-01.md`. Cloudflare's dedicated Pub/Sub product turned out to be retired (Aug 2025); Pusher needs HMAC request-signing; Firebase needs open security rules or OAuth juggling.
